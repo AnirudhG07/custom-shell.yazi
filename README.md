@@ -2,6 +2,9 @@
 
 A yazi plugin to open zsh as your default Shell.
 
+## Previews
+https://github.com/AnirudhG07/zsh.yazi/assets/146579014/4f194afe-c7bd-4c43-b361-348319d1b22d
+
 ## Acknowledgements
 
 This code is written by the maintainer of sxyazi/yazi, and was given as solution to issue [#1206](https://github.com/sxyazi/yazi/issues/1206) I raised on the repository. Thank you so much.
