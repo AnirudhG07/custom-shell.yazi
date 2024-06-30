@@ -64,7 +64,7 @@ desc = "custom-shell as default"
 **NOTE:** For the shells with names different than the command used to call them, like 'Kornshell' which is called using 'ksh', you have to set `args=ksh` instead of `args=Kornshell`.
 
 # Features
-- Open your custom-shell as your default shell.
+- Open your custom-shell as your default shell like zsh, [fish](https://github.com/AnirudhG07/fish.yazi), bash, etc.
 - Usage of aliases is supported.
 - When using 'auto' mode, if you change your default shell, it will automatically change the custom-shell to the new default shell.
 
