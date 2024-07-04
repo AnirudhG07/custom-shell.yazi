@@ -37,6 +37,7 @@ There are 2 ways you can set your custom-shell.
 | `zsh`    | Set custom-shell = `zsh`                  |
 | `bash`   | Set custom-shell = `bash`                 |
 | `fish`   | Set custom-shell = `fish`  <°))><         |
+| `nu`     | Set custom-shell = `nu`                   |
 | `ksh`    | Set custom-shell = `ksh` or Kornshell     |
 
 Similarly you can input the name of the shell you want to use.
@@ -44,10 +45,8 @@ Similarly you can input the name of the shell you want to use.
 These commands uses the below command to run the shells-
 
 ```bash
-custom_shell -ic "command";exit
+custom_shell -i -c "command";exit
 ```
-
-For shell's like `nushell` where `-ic` is not supported, you will have to change the args in the `init.lua` file to support it.
 
 ## Keymapping
 
@@ -57,21 +56,39 @@ To use the `auto` mode, you can set the keymappings as-
 
 ```toml
 [[manager.prepend_keymap]]
+on = [ ";" ]
+run = "plugin custom-shell"
+desc = "custom-shell using default shell"
+```
+
+To use the `block` mode, you can set the keymappings as-
+
+```toml
+[[manager.prepend_keymap]]
 on = [ ":" ]
-run = "plugin custom-shell --args=auto"
-desc = "custom-shell as default"
+run = "plugin custom-shell --args='auto --block'"
+desc = "custom-shell with blocking"
 ```
 
 To choose a specific shell, you can set the keymappings as-
 
 ```toml
 [[manager.prepend_keymap]]
-on = [ ":" ]
-run = "plugin custom-shell --args=zsh" # Example
-desc = "custom-shell as default"
+on = [ ";" ]
+run = "plugin custom-shell --args=zsh"
+desc = "custom-shell with zsh"
 ```
 
-**NOTE:** For the shells with names different than the command used to call them, like 'Kornshell' which is called using 'ksh', you have to set `args=ksh` instead of `args=Kornshell`.
+To run a specific command in a specific shell, you can set the keymappings as-
+
+```toml
+[[manager.prepend_keymap]]
+on = [ ";" ]
+run = "plugin custom-shell --args='fish echo example ; read c --block --confirm'" # Example command
+desc = "Run a blocking echo command with fish"
+```
+
+**NOTE:** The first argument must be either "auto" or the shell name e.g. "fish". Multiple arguments must be quoted with single quotes.
 
 # Features
 
