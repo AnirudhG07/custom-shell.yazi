@@ -79,6 +79,15 @@ run = "plugin custom-shell --args=zsh"
 desc = "custom-shell with zsh"
 ```
 
+To type a command, you can set the keymappings as-
+
+```toml
+[[manager.prepend_keymap]]
+on = [ ";" ]
+run = "plugin custom-shell --args='nu \"ls | sort-by \" --block'"
+desc = "Run ls table in nu sort by ...?"
+```
+
 To run a specific command in a specific shell, you can set the keymappings as-
 
 ```toml
