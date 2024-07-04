@@ -93,7 +93,7 @@ desc = "Run a blocking echo command with fish"
 # Features
 
 - Open your custom-shell as your default shell like zsh, <°))>< [fish](https://github.com/AnirudhG07/fish.yazi), bash, etc.
-- Usage of aliases is supported.
+- Usage of aliases is supported except in nushell.
 - When using 'auto' mode, if you change your default shell, it will automatically change the custom-shell to the new default shell.
 - If your shell runs extra commands like printing texts, taskwarrior, newsupdates, etc. when you open the shell, they will not hinder into it's functioning.
 
