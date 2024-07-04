@@ -84,7 +84,7 @@ To run a specific command in a specific shell, you can set the keymappings as-
 ```toml
 [[manager.prepend_keymap]]
 on = [ ";" ]
-run = "plugin custom-shell --args='fish echo example ; read c --block --confirm'" # Example command
+run = "plugin custom-shell --args='fish \"echo example command with --block and --confirm flags ; read c\" --block --confirm'"
 desc = "Run a blocking echo command with fish"
 ```
 

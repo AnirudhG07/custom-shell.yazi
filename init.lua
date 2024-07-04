@@ -10,11 +10,11 @@ return {
 
 		-- Parse command flags
 		for idx, item in ipairs(args) do
-			if item:match("%-%-block") then
+			if item == "--block" then
 				block = true
-			elseif item:match("%-%-confirm") then
+			elseif item == "--confirm" then
 				confirm = true
-			elseif idx ~= 1 and not item:match("^%-%-") then
+			elseif idx ~= 1 then
 				value_string = value_string .. " " .. item
 			end
 		end
