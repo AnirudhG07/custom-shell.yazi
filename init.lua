@@ -6,14 +6,14 @@ return {
 		local value_string = ""
 		-- Block and confirm command flags
 		local block = false
-		local confirm = false
+		local confirm = true
 
 		-- Parse command flags
 		for idx, item in ipairs(args) do
 			if item == "--block" then
 				block = true
 			elseif item == "--confirm" then
-				confirm = true
+				confirm = false
 			elseif idx ~= 1 then
 				value_string = value_string .. " " .. item
 			end
