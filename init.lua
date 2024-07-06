@@ -10,9 +10,9 @@ return {
 
 		-- Parse command flags
 		for idx, item in ipairs(args) do
-			if item == "--block" then
+			if item == "--block" or item == "-b" then
 				block = true
-			elseif item == "--confirm" then
+			elseif item == "--confirm" or item == "-c" then
 				confirm = false
 			elseif idx ~= 1 then
 				value_string = value_string .. " " .. item
@@ -20,7 +20,7 @@ return {
 		end
 
 		-- If custom shell is chosen, use it
-		if args[1] and not args[1]:match("auto") and not args[1]:match("^%-%-") then
+		if args[1] and not args[1]:match("auto") and not args[1]:match("^%-") then
 			shell_value = args[1]:lower() == "kornshell" and "ksh" or args[1]
 		end
 
