@@ -36,7 +36,7 @@ There are 2 ways you can set your custom-shell.
 | `auto`   | Automatically set custom-shell = `$SHELL` |
 | `zsh`    | Set custom-shell = `zsh`                  |
 | `bash`   | Set custom-shell = `bash`                 |
-| `fish`   | Set custom-shell = `fish`  <°))><         |
+| `fish`   | Set custom-shell = `fish` <°))><          |
 | `ksh`    | Set custom-shell = `ksh` or Kornshell     |
 
 Similarly you can input the name of the shell you want to use.
@@ -79,6 +79,10 @@ desc = "custom-shell as default"
 - Usage of aliases is supported.
 - When using 'auto' mode, if you change your default shell, it will automatically change the custom-shell to the new default shell.
 - If your shell runs extra commands like printing texts, taskwarrior, newsupdates, etc. when you open the shell, they will not hinder into it's functioning.
+
+## Explore Yazi
+
+Yazi is an amazing, blazing fast terminal file manager, with a variety of plugins, flavors and themes. Check them out at [awesome-yazi](https://github.com/AnirudhG07/awesome-yazi) and the official [yazi webpage](https://yazi-rs.github.io/).
 
 ## Acknowledgement
 
