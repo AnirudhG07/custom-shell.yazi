@@ -47,29 +47,39 @@ end
 
 local function entry(_, args)
 	local shell_env = os.getenv("SHELL"):match(".*/(.*)")
+	local shell_value = ""
 
-	local shell_value = shell_env:lower()
-	if args[1] ~= "auto" then
+	if args[1] == "auto" then
+		shell_value = shell_env:lower()
+	elseif args[1] == "custom" then
+		shell_value = args[2]
+	else
 		shell_value = args[1]:lower()
 	end
 
-	local shell_val, supp = shell_choice(shell_value)
+	local shell_val, supp = shell_choice(shell_value:lower())
 	if shell_val == nil then
 		ya.notify("Unsupported shell: " .. shell_value .. "Choosing Default Shell: " .. shell_env)
 		shell_val, supp = shell_choice(shell_env)
 	end
 
-	local block, confirm, orphan = manage_extra_args(args)
+	local block, confirm, orphan, unix = manage_extra_args(args)
 	local input_title = shell_value .. " Shell " .. (block and "(block)" or "") .. ": "
 
-	local value, event = ya.input({
-		title = input_title,
-		position = { "top-center", y = 3, w = 40 },
-	})
+	local cmd, event = "", 1
+	if args[1] ~= "custom" then
+		cmd, event = ya.input({
+			title = input_title,
+			position = { "top-center", y = 3, w = 40 },
+		})
+	else
+		cmd = args[3]
+	end
+	ya.notify({ title = "Shell", content = cmd, timeout = 1 })
 
 	if event == 1 then
 		ya.manager_emit("shell", {
-			shell_val .. " " .. supp .. " " .. ya.quote(value .. "; exit", true),
+			shell_val .. " " .. supp .. " " .. ya.quote(cmd, true),
 			block = block,
 			confirm = confirm,
 			orphan = orphan,
