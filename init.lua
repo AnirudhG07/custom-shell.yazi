@@ -29,6 +29,22 @@ local function shell_choice(shell_val)
 	end
 end
 
+local function manage_extra_args(args)
+	-- set default values, --custom-shell.yazi does not use --interactive but --confirm.
+	local block, confirm, orphan = true, true, false
+	for _, arg in ipairs(args) do
+		if arg == "-nb" or arg == "--no-block" then
+			block = false
+		elseif arg == "-nc" or arg == "--no-confirm" then
+			confirm = false
+		elseif arg == "-o" or arg == "--orphan" then
+			orphan = true
+		end
+	end
+
+	return block, confirm, orphan
+end
+
 local function entry(_, args)
 	local shell_env = os.getenv("SHELL"):match(".*/(.*)")
 
@@ -43,8 +59,8 @@ local function entry(_, args)
 		shell_val, supp = shell_choice(shell_env)
 	end
 
-	local blocked = args[2] and args[2]:lower() == "unblock" and false or true
-	local input_title = shell_value .. " Shell " .. (blocked and "(block)" or "") .. ": "
+	local block, confirm, orphan = manage_extra_args(args)
+	local input_title = shell_value .. " Shell " .. (block and "(block)" or "") .. ": "
 
 	local value, event = ya.input({
 		title = input_title,
@@ -54,8 +70,9 @@ local function entry(_, args)
 	if event == 1 then
 		ya.manager_emit("shell", {
 			shell_val .. " " .. supp .. " " .. ya.quote(value .. "; exit", true),
-			block = blocked,
-			confirm = true,
+			block = block,
+			confirm = confirm,
+			orphan = orphan,
 		})
 	end
 end
