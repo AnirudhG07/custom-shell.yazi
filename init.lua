@@ -25,7 +25,7 @@ local function shell_choice(shell_val)
 	if shell_info then
 		return shell_info.shell_val, shell_info.supporter
 	else
-		return nil, nil
+		return nil, "-c"
 	end
 end
 
@@ -75,7 +75,6 @@ local function entry(_, args)
 	else
 		cmd = args[3]
 	end
-	ya.notify({ title = "Shell", content = cmd, timeout = 1 })
 
 	if event == 1 then
 		ya.manager_emit("shell", {
