@@ -7,7 +7,7 @@ local function shell_choice(shell_val)
 	}
 
 	local shell_map = {
-		bash = { shell_val = "bash", supporter = "-c" },
+		bash = { shell_val = "bash", supporter = "-ic" },
 		zsh = { shell_val = "zsh", supporter = "-ic" },
 		fish = { shell_val = "fish", supporter = "-c" },
 		pwsh = { shell_val = "pwsh", supporter = "-Command" },
@@ -78,7 +78,7 @@ local function entry(_, args)
 
 	if event == 1 then
 		ya.manager_emit("shell", {
-			shell_val .. " " .. supp .. " " .. ya.quote(cmd, true),
+			shell_val .. " " .. supp .. " " .. ya.quote(cmd .. "; exit", true),
 			block = block,
 			confirm = confirm,
 			orphan = orphan,
