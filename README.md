@@ -14,7 +14,7 @@ Yazi version 0.3.0 or higher. And of course, your custom-shell as default shell.
 # Installation
 
 ```bash
-ya pack -a AnirudhG07/custom-shell.yazi
+ya pack -a AnirudhG07/custom-shell
 
 ## For linux and MacOS
 git clone https://github.com/AnirudhG07/custom-shell.yazi.git ~/.config/yazi/plugins/custom-shell.yazi
