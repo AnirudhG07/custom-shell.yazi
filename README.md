@@ -65,11 +65,15 @@ To change these options, you can give the following arguments to the plugin:
 
 Check the keybindings below to see how to set these options.
 
+You can also add `--wait` or `-w` to make it wait for the user to press return key after executing the command. This allows the command output not to disappear immediately after exit and to stay readable on screen. Note that it is up to the command you run to decide whether to wait for user input or not, so this option may or may not be needed.
+
+![wait argument demo](.assets/wait_demo.gif)
+
 ### Keybindings for Custom Shell
 
 Add this to your `keymap.toml` file:
 
-To use the `auto` mode, you can set the keymappings as-
+To use the `auto` mode, you can set the keymappings as:
 
 ```toml
 [[manager.prepend_keymap]]
@@ -78,7 +82,7 @@ run = "plugin custom-shell --args=auto"
 desc = "custom-shell as default"
 ```
 
-To choose a specific shell, you can set the keymappings as-
+To choose a specific shell, you can set the keymappings as:
 
 ```toml
 [[manager.prepend_keymap]]
@@ -87,7 +91,7 @@ run = "plugin custom-shell --args=zsh"
 desc = "custom-shell as default"
 ```
 
-To set extra shell arguments, you can add them as -
+To set extra shell arguments, you can add them as:
 
 ```toml
 [[manager.prepend_keymap]]
@@ -98,13 +102,22 @@ run = "plugin custom-shell --args='zsh --no-block --orphan --no-confirm'"
 desc = "custom-shell as default with specified arguments"
 ```
 
+To choose a specific shell and wait for user to press return key after executing the command:
+
+```toml
+[[manager.prepend_keymap]]
+on = [ "'", ";" ]
+run = "plugin custom-shell --args='zsh --wait'"
+desc = "custom-shell as default, waits for user"
+```
+
 You can input any shell with their shortnames or full names like "Powershell" or "pwsh", "nushell" or "nu", "Kornshell" or "ksh", etc.
 
 ## Custom Commands
 
 Custom-shell.yazi allows you to run your custom commands without inputting them inside yazi. You can set the shell through which you want to run your command as well. This also supports aliases.
 
-To run a command, you can set the keymappings as-
+To run a command, you can set the keymappings as:
 
 ```toml
 [[manager.prepend_keymap]]
@@ -113,7 +126,7 @@ run = "plugin custom-shell --args='custom auto lazygit'"
 desc = "Run lazygit"
 ```
 
-You can also run the commands with extra arguments as -
+You can also run the commands with extra arguments as:
 
 ```toml
 [[manager.prepend_keymap]]
@@ -129,7 +142,16 @@ run = "plugin custom-shell --args='custom nu \"tmux\"'"
 desc = "Run tmux"
 ```
 
-# Features
+To make it wait with a custom command, specify the `--wait` or `-w` arg right after the `custom` keyword, like this:
+
+```toml
+[[manager.prepend_keymap]]
+on = [ "'", "3" ]
+run = "plugin custom-shell --args='custom --wait zsh \"echo hi\" -o'"
+desc = "Run echo hi"
+```
+
+## Features
 
 - Open your custom-shell as your default shell like zsh, <°))>< [fish](https://github.com/AnirudhG07/fish.yazi), bash, etc.
 - Usage of aliases is supported.
