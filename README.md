@@ -1,6 +1,6 @@
 # Custom-shell.yazi
 
-A yazi plugin to open your custom-shell as well as run your command commands through your yazi Shell.
+A yazi plugin to open your custom-shell as well as run your command commands through your yazi Shell, and also save your commands to history.
 You can choose any shell and customise keybindings to run any command like nvim, lazygit, cowsay, etc. without inputting the command as well!
 
 ## Previews
@@ -26,6 +26,21 @@ git clone https://github.com/AnirudhG07/custom-shell.yazi.git %AppData%\yazi\con
 Windows user's should check the init.lua file to make sure the paths used are correct.
 
 # Usage
+
+## History Setup
+
+Add the following to your `init.lua` file:
+
+```lua
+require("custom-shell").setup({
+    history_path = "default",
+    save_history = true,
+})
+```
+
+The `default` corresponds to `yazi_cmd_history` file in your `~/.config/yazi/plugins/custom-shell.yazi` directory(and similar for Windows). You can specify any other path if you like to save the history file elsewhere.
+
+The `save_history` option is set to `true` by default, which will enable files to be saved to history. You can disable the behavior by setting it to `false`.
 
 ## Shell Selection
 
@@ -151,6 +166,17 @@ run = "plugin custom-shell --args='custom --wait zsh \"echo hi\" -o'"
 desc = "Run echo hi"
 ```
 
+## History
+
+Custom-shell saves the command you have run in a history file. It uses `fzf` to show history and run the selected command. You can set the keymappings to view the history as -
+
+```toml
+[[manager.prepend_keymap]]
+on = [ "'", "h" ]
+run = "plugin custom-shell --args=history"
+desc = "Show Custom-shell history"
+```
+
 ## Features
 
 - Open your custom-shell as your default shell like zsh, <°))>< [fish](https://github.com/AnirudhG07/fish.yazi), bash, etc.
@@ -159,6 +185,7 @@ desc = "Run echo hi"
 - If your shell runs extra commands like printing texts, taskwarrior, newsupdates, etc. when you open the shell, they will not hinder into it's functioning.
 - Run custom commands without inputting them inside yazi.
 - Set extra arguments for the processes to run.
+- Save commands to history and execute them again.
 
 ## Explore Yazi
 
