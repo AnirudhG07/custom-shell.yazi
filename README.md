@@ -32,7 +32,7 @@ Windows user's should check the init.lua file to make sure the paths used are co
 Add the following to your `init.lua` file:
 
 ```lua
-require("custom-shell").setup({
+require("custom-shell"):setup({
     history_path = "default",
     save_history = true,
 })
