@@ -69,14 +69,13 @@ You can also set options about the processes to run. The `shell` API for yazi al
 
 1. Block: Custom-shell.yazi has default set to `true`.
 2. Orphan: Custom-shell.yazi has default set to `false`.
-3. Confirm: Custom-shell.yazi has default set to `true`.
-4. Interactive: Custom-shell.yazi DOES NOT use it, since it is mutually exclusive with `confirm`.
+3. Interactive: Custom-shell.yazi has default set to `true`.
 
 To change these options, you can give the following arguments to the plugin:
 
 1. `--no-block` or `-nb` to set block to `false`.
 2. `--orphan` or `-o` to set orphan to `true`.
-3. `--no-confirm` or `-nc` to set confirm to `false`.
+3. `--no-interactive` or `-ni` to set interactive to `false`.
 
 Check the keybindings below to see how to set these options.
 
@@ -111,9 +110,9 @@ To set extra shell arguments, you can add them as:
 ```toml
 [[manager.prepend_keymap]]
 on = [ "'", ";" ]
-run = "plugin custom-shell --args='zsh --no-block --orphan --no-confirm'"
+run = "plugin custom-shell --args='zsh --no-block --orphan --no-interactive'"
 # OR
-# run = "plugin custom-shell --args='zsh -nb -o -nc'"
+# run = "plugin custom-shell --args='zsh -nb -o -ni'"
 desc = "custom-shell as default with specified arguments"
 ```
 
