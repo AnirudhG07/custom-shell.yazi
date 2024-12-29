@@ -9,7 +9,7 @@ https://github.com/AnirudhG07/custom-shell.yazi/assets/146579014/1cd6ab98-5b79-4
 
 ## Requirements
 
-Yazi version 0.3.0 or higher. And of course, your custom-shell as default shell.
+Yazi version 0.4.0 or higher. And of course, your custom-shell as default shell.
 
 # Installation
 
@@ -69,18 +69,17 @@ You can also set options about the processes to run. The `shell` API for yazi al
 
 1. Block: Custom-shell.yazi has default set to `true`.
 2. Orphan: Custom-shell.yazi has default set to `false`.
-3. Confirm: Custom-shell.yazi has default set to `true`.
-4. Interactive: Custom-shell.yazi DOES NOT use it, since it is mutually exclusive with `confirm`.
 
-To change these options, you can give the following arguments to the plugin:
+To change these options, you can give the following arguments to the plugin, you can add `--option` or `--option=true` to set the option to true, or `--option=false` to set the option to false.
 
-1. `--no-block` or `-nb` to set block to `false`.
-2. `--orphan` or `-o` to set orphan to `true`.
-3. `--no-confirm` or `-nc` to set confirm to `false`.
+For example:
+
+- `--block=false` to set block to false.
+- `--orphan=true` to set orphan to true.
 
 Check the keybindings below to see how to set these options.
 
-You can also add `--wait` or `-w` to make it wait for the user to press return key after executing the command. This allows the command output not to disappear immediately after exit and to stay readable on screen. Note that it is up to the command you run to decide whether to wait for user input or not, so this option may or may not be needed.
+You can also add `--wait`(default `false`) to make it wait for the user to press return key after executing the command. This allows the command output not to disappear immediately after exit and to stay readable on screen. Note that it is up to the command you run to decide whether to wait for user input or not, so this option may or may not be needed.
 
 ![wait argument demo](.assets/wait_demo.gif)
 
@@ -111,7 +110,7 @@ To set extra shell arguments, you can add them as:
 ```toml
 [[manager.prepend_keymap]]
 on = [ "'", ";" ]
-run = "plugin custom-shell --args='zsh --no-block --orphan --no-confirm'"
+run = "plugin custom-shell --args='zsh --block=false --wait --orphan'"
 # OR
 # run = "plugin custom-shell --args='zsh -nb -o -nc'"
 desc = "custom-shell as default with specified arguments"
@@ -146,7 +145,7 @@ You can also run the commands with extra arguments as:
 ```toml
 [[manager.prepend_keymap]]
 on = [ "'", "1" ]
-run = "plugin custom-shell --args='custom fish \"echo hi\" -o'"
+run = "plugin custom-shell --args='custom fish \"echo hi\" --orphan'"
 desc = "Run echo hi"
 ```
 
@@ -157,13 +156,13 @@ run = "plugin custom-shell --args='custom nu \"tmux\"'"
 desc = "Run tmux"
 ```
 
-To make it wait with a custom command, specify the `--wait` or `-w` arg right after the `custom` keyword, like this:
+To make the shell wait for your `ls` command, you can set the keymappings as:
 
 ```toml
 [[manager.prepend_keymap]]
 on = [ "'", "3" ]
-run = "plugin custom-shell --args='custom --wait zsh \"echo hi\" -o'"
-desc = "Run echo hi"
+run = "plugin custom-shell --args='custom zsh ls --wait'"
+desc = "Run ls"
 ```
 
 ## History
