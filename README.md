@@ -67,8 +67,9 @@ custom_shell -ic "command";exit
 
 You can also set options about the processes to run. The `shell` API for yazi allows the following options:
 
-1. Block: Custom-shell.yazi has default set to `true`.
-2. Orphan: Custom-shell.yazi has default set to `false`.
+1. Interactive: default set to `false`.
+2. Block: default set to `false`.
+3. Orphan: default set to `false`.
 
 To change these options, you can give the following arguments to the plugin, you can add `--option` or `--option=true` to set the option to true, or `--option=false` to set the option to false.
 

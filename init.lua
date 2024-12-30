@@ -2,10 +2,6 @@ local state_option = ya.sync(function(state, attr)
 	return state[attr]
 end)
 
-local function notify(stuff)
-	ya.notify({ title = "Custom-Shell", content = stuff, timeout = 10 })
-end
-
 local function shell_choice(shell_val)
 	-- input is in lowercase always
 	local alt_name_map = {
@@ -38,7 +34,7 @@ local function shell_choice(shell_val)
 end
 
 local function manage_extra_args(job)
-	-- set default values, --custom-shell.yazi does not use --interactive but --confirm.
+	-- function for dealing with --option, --option=boolean, nil
 	local function tobool(arg, default)
 		if type(arg) == "boolean" then
 			return arg
@@ -52,8 +48,9 @@ local function manage_extra_args(job)
 	local block = tobool(job.args.block, true)
 	local orphan = tobool(job.args.orphan, false)
 	local wait = tobool(job.args.wait, false)
+	local interactive = tobool(job.args.confirm, false)
 
-	return block, orphan, wait --, confirm
+	return block, orphan, wait, interactive
 end
 
 local function manage_additional_title_text(block, wait)
@@ -177,12 +174,12 @@ local function entry(_, job)
 		shell_val, supp = shell_choice(shell_env)
 	end
 
-	local block, orphan, wait = manage_extra_args(job) --  , confirm
+	local block, orphan, wait, interactive = manage_extra_args(job) --  , confirm
 	local additional_title_text = manage_additional_title_text(block, wait)
 	local input_title = shell_value .. " Shell " .. additional_title_text .. ": "
 	local event = 1
 
-	if job.args[1] ~= "custom" and args[1] ~= "history" then
+	if job.args[1] ~= "custom" and job.args[1] ~= "history" then
 		cmd, event = ya.input({
 			title = input_title,
 			position = { "top-center", y = 3, w = 40 },
@@ -197,7 +194,7 @@ local function entry(_, job)
 		ya.manager_emit("shell", {
 			custom_shell_cmd,
 			block = block,
-			-- confirm = confirm,
+			interactive = interactive,
 			orphan = orphan,
 		})
 
