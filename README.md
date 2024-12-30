@@ -71,7 +71,10 @@ You can also set options about the processes to run. The `shell` API for yazi al
 2. Block: default set to `false`.
 3. Orphan: default set to `false`.
 
-To change these options, you can give the following arguments to the plugin, you can add `--option` or `--option=true` to set the option to true, or `--option=false` to set the option to false.
+To change these options, you can give the following arguments to the plugin:
+
+- To set to `true`, add `--option=true` or simply `--option`.
+- To set to `false`, add `--option=false` or simply not add it in the command(unless default is `true`).
 
 For example:
 
@@ -92,8 +95,8 @@ To use the `auto` mode, you can set the keymappings as:
 
 ```toml
 [[manager.prepend_keymap]]
-on = [ "'", ";" ]
-run = "plugin custom-shell --args=auto"
+on = [ <keybinding> ]
+run = 'plugin custom-shell --args="auto --interactive"'
 desc = "custom-shell as default"
 ```
 
@@ -101,8 +104,8 @@ To choose a specific shell, you can set the keymappings as:
 
 ```toml
 [[manager.prepend_keymap]]
-on = [ "'", ";" ]
-run = "plugin custom-shell --args=zsh"
+on = [ <keybinding> ]
+run = 'plugin custom-shell --args="zsh"'
 desc = "custom-shell as default"
 ```
 
@@ -110,23 +113,37 @@ To set extra shell arguments, you can add them as:
 
 ```toml
 [[manager.prepend_keymap]]
-on = [ "'", ";" ]
-run = "plugin custom-shell --args='zsh --block=false --wait --orphan'"
-# OR
-# run = "plugin custom-shell --args='zsh -nb -o -nc'"
+on = [ <keybinding> ]
+run = 'plugin custom-shell --args="zsh --interactive --block"'
 desc = "custom-shell as default with specified arguments"
 ```
 
-To choose a specific shell and wait for user to press return key after executing the command:
+To choose a specific shell(or `auto`) and `wait` for user to press return key after executing the command:
 
 ```toml
 [[manager.prepend_keymap]]
-on = [ "'", ";" ]
+on = [ <keybinding> ]
 run = "plugin custom-shell --args='zsh --wait'"
 desc = "custom-shell as default, waits for user"
 ```
 
 You can input any shell with their shortnames or full names like "Powershell" or "pwsh", "nushell" or "nu", "Kornshell" or "ksh", etc.
+
+### Recommended Keybindings
+
+```toml
+[[manager.prepend_keymap]]
+on = [ "'", ";" ]
+run = 'plugin custom-shell --args="auto --interactive"'
+desc = "custom-shell as default, interactive"
+```
+
+```toml
+[[manager.prepend_keymap]]
+on = [ "'", ":" ]
+run = 'plugin custom-shell --args="auto --interactive --block"'
+desc = "custom-shell as default, interactive, block"
+```
 
 ## Custom Commands
 
