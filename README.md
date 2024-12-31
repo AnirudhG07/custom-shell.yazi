@@ -95,7 +95,7 @@ To use the `auto` mode, you can set the keymappings as:
 
 ```toml
 [[manager.prepend_keymap]]
-on = [ <keybinding> ]
+on = [ "<keybinding>" ]
 run = 'plugin custom-shell --args="auto --interactive"'
 desc = "custom-shell as default"
 ```
@@ -104,7 +104,7 @@ To choose a specific shell, you can set the keymappings as:
 
 ```toml
 [[manager.prepend_keymap]]
-on = [ <keybinding> ]
+on = [ "<keybinding>" ]
 run = 'plugin custom-shell --args="zsh"'
 desc = "custom-shell as default"
 ```
@@ -113,7 +113,7 @@ To set extra shell arguments, you can add them as:
 
 ```toml
 [[manager.prepend_keymap]]
-on = [ <keybinding> ]
+on = [ "<keybinding>" ]
 run = 'plugin custom-shell --args="zsh --interactive --block"'
 desc = "custom-shell as default with specified arguments"
 ```
@@ -122,7 +122,7 @@ To choose a specific shell(or `auto`) and `wait` for user to press return key af
 
 ```toml
 [[manager.prepend_keymap]]
-on = [ <keybinding> ]
+on = [ "<keybinding>" ]
 run = "plugin custom-shell --args='zsh --wait'"
 desc = "custom-shell as default, waits for user"
 ```
@@ -196,7 +196,7 @@ desc = "Show Custom-shell history"
 
 ## Features
 
-- Open your custom-shell as your default shell like zsh, <°))>< [fish](https://github.com/AnirudhG07/fish.yazi), bash, etc.
+- Open your custom-shell as your default shell like zsh, <°))>< fish, bash, etc.
 - Usage of aliases is supported.
 - When using 'auto' mode, if you change your default shell, it will automatically change the custom-shell to the new default shell.
 - If your shell runs extra commands like printing texts, taskwarrior, newsupdates, etc. when you open the shell, they will not hinder into it's functioning.
