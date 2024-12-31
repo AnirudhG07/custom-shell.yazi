@@ -34,21 +34,23 @@ local function shell_choice(shell_val)
 end
 
 local function manage_extra_args(job)
-	-- set default values, --custom-shell.yazi does not use --interactive but --confirm.
-	local block, confirm, orphan, wait = true, true, false, false
-	for _, arg in ipairs(job.args) do
-		if arg == "-nb" or arg == "--no-block" then
-			block = false
-		elseif arg == "-nc" or arg == "--no-confirm" then
-			confirm = false
-		elseif arg == "-o" or arg == "--orphan" then
-			orphan = true
-		elseif arg == "-w" or arg == "--wait" then
-			wait = true
+	-- function for dealing with --option, --option=boolean, nil
+	local function tobool(arg, default)
+		if type(arg) == "boolean" then
+			return arg
+		elseif type(arg) == "string" then
+			return arg:lower() == "true"
 		end
+		-- Fallback in case of nil
+		return default
 	end
 
-	return block, confirm, orphan, wait
+	local block = tobool(job.args.block, true)
+	local orphan = tobool(job.args.orphan, false)
+	local wait = tobool(job.args.wait, false)
+	local interactive = tobool(job.args.confirm, false)
+
+	return block, orphan, wait, interactive
 end
 
 local function manage_additional_title_text(block, wait)
@@ -137,13 +139,9 @@ local function entry(_, job)
 	if job.args[1] == "auto" or job.args[1] == "history" then
 		shell_value = shell_env:lower()
 	elseif job.args[1] == "custom" then
-		if job.args[2] == "--wait" or job.args[2] == "-w" then
-			shell_value = job.args[3]
-			cmd = job.args[4]
-		else
-			shell_value = job.args[2]
-			cmd = job.args[3]
-		end
+		shell_value = job.args[2]
+		cmd = job.args[3]
+	-- when the first param is a shell name
 	elseif job.args[1] ~= "history" then
 		shell_value = job.args[1]:lower()
 	end
@@ -171,12 +169,12 @@ local function entry(_, job)
 		shell_val, supp = shell_choice(shell_env)
 	end
 
-	local block, confirm, orphan, wait = manage_extra_args(job)
+	local block, orphan, wait, interactive = manage_extra_args(job) --  , confirm
 	local additional_title_text = manage_additional_title_text(block, wait)
 	local input_title = shell_value .. " Shell " .. additional_title_text .. ": "
 	local event = 1
 
-	if job.args[1] ~= "custom" and args[1] ~= "history" then
+	if job.args[1] ~= "custom" and job.args[1] ~= "history" then
 		cmd, event = ya.input({
 			title = input_title,
 			position = { "top-center", y = 3, w = 40 },
@@ -191,7 +189,7 @@ local function entry(_, job)
 		ya.manager_emit("shell", {
 			custom_shell_cmd,
 			block = block,
-			confirm = confirm,
+			interactive = interactive,
 			orphan = orphan,
 		})
 
