@@ -139,13 +139,8 @@ local function entry(_, job)
 	if job.args[1] == "auto" or job.args[1] == "history" then
 		shell_value = shell_env:lower()
 	elseif job.args[1] == "custom" then
-		if job.args.wait then
-			shell_value = job.args[2]
-			cmd = job.args[3]
-		else
-			shell_value = job.args[2]
-			cmd = job.args[3]
-		end
+		shell_value = job.args[2]
+		cmd = job.args[3]
 	-- when the first param is a shell name
 	elseif job.args[1] ~= "history" then
 		shell_value = job.args[1]:lower()
