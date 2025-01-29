@@ -11,23 +11,23 @@ local function shell_choice(shell_val)
 	}
 
 	local shell_map = {
-		bash = { shell_val = "bash", supporter = "-ic", wait_cmd = "read" },
-		zsh = { shell_val = "zsh", supporter = "-ic", wait_cmd = "read" },
-		fish = { shell_val = "fish", supporter = "-c", wait_cmd = "read" },
-		pwsh = { shell_val = "pwsh", supporter = "-Command", wait_cmd = "Read-Host" },
-		sh = { shell_val = "sh", supporter = "-c", wait_cmd = "read" },
-		ksh = { shell_val = "ksh", supporter = "-c", wait_cmd = "read" },
-		csh = { shell_val = "csh", supporter = "-c", wait_cmd = "$<" },
-		tcsh = { shell_val = "tcsh", supporter = "-c", wait_cmd = "$<" },
-		dash = { shell_val = "dash", supporter = "-c", wait_cmd = "read" },
-		nu = { shell_val = "nu", supporter = "-l -i -c", wait_cmd = "input" },
+		bash = { shell_val = "bash", supporter = "-ic", wait_cmd = "read", separator = ";" },
+		zsh = { shell_val = "zsh", supporter = "-ic", wait_cmd = "read", separator = ";" },
+		fish = { shell_val = "fish", supporter = "-c", wait_cmd = "read", separator = ";" },
+		pwsh = { shell_val = "pwsh", supporter = "-Command", wait_cmd = "Read-Host", separator = ";" },
+		sh = { shell_val = "sh", supporter = "-c", wait_cmd = "read", separator = ";" },
+		ksh = { shell_val = "ksh", supporter = "-c", wait_cmd = "read", separator = ";" },
+		csh = { shell_val = "csh", supporter = "-c", wait_cmd = "$<", separator = ";" },
+		tcsh = { shell_val = "tcsh", supporter = "-c", wait_cmd = "$<", separator = ";" },
+		dash = { shell_val = "dash", supporter = "-c", wait_cmd = "read", separator = ";" },
+		nu = { shell_val = "nu", supporter = "-l -i -c", wait_cmd = "input", separator = "| print;" },
 	}
 
 	shell_val = alt_name_map[shell_val] or shell_val
 	local shell_info = shell_map[shell_val]
 
 	if shell_info then
-		return shell_info.shell_val, shell_info.supporter, shell_info.wait_cmd
+		return shell_info.shell_val, shell_info.supporter, shell_info.wait_cmd, shell_info.separator
 	else
 		return nil, "-c", "read"
 	end
@@ -146,7 +146,7 @@ local function entry(_, job)
 		shell_value = job.args[1]:lower()
 	end
 
-	local shell_val, supp, wait_cmd = shell_choice(shell_value:lower())
+	local shell_val, supp, wait_cmd, separator = shell_choice(shell_value:lower())
 
 	if job.args[1] == "history" then
 		local his_cmd = history_prev(history_path)
@@ -182,9 +182,9 @@ local function entry(_, job)
 	end
 
 	if event == 1 then
-		local after_cmd = wait and wait_cmd or "exit"
+		local after_cmd = separator .. (wait and wait_cmd or "exit")
 		-- for history also, this will be added.
-		custom_shell_cmd = shell_val .. " " .. supp .. " " .. ya.quote(cmd .. "; " .. after_cmd, true)
+		custom_shell_cmd = shell_val .. " " .. supp .. " " .. ya.quote(cmd .. after_cmd, true)
 
 		ya.manager_emit("shell", {
 			custom_shell_cmd,
