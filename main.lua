@@ -20,7 +20,7 @@ local function shell_choice(shell_val)
 		csh = { shell_val = "csh", supporter = "-c", wait_cmd = "$<" },
 		tcsh = { shell_val = "tcsh", supporter = "-c", wait_cmd = "$<" },
 		dash = { shell_val = "dash", supporter = "-c", wait_cmd = "read" },
-		nu = { shell_val = "nu", supporter = "-ic", wait_cmd = "input" },
+		nu = { shell_val = "nu", supporter = "-l -i -c", wait_cmd = "input" },
 	}
 
 	shell_val = alt_name_map[shell_val] or shell_val
