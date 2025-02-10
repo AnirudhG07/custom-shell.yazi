@@ -204,6 +204,8 @@ local function entry(_, job)
 	end
 end
 
+--- @since 25.2.7
+
 return {
 	setup = function(state, options)
 		local default_history_path = (

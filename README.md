@@ -9,7 +9,7 @@ https://github.com/AnirudhG07/custom-shell.yazi/assets/146579014/1cd6ab98-5b79-4
 
 ## Requirements
 
-Yazi version 0.4.0 or higher. And of course, your custom-shell as default shell.
+Yazi version 25.2.7 or higher. And of course, your custom-shell as default shell.
 
 # Installation
 
@@ -96,7 +96,7 @@ To use the `auto` mode, you can set the keymappings as:
 ```toml
 [[manager.prepend_keymap]]
 on = [ "<keybinding>" ]
-run = 'plugin custom-shell --args="auto --interactive"'
+run = 'plugin custom-shell -- auto --interactive'
 desc = "custom-shell as default"
 ```
 
@@ -105,7 +105,7 @@ To choose a specific shell, you can set the keymappings as:
 ```toml
 [[manager.prepend_keymap]]
 on = [ "<keybinding>" ]
-run = 'plugin custom-shell --args="zsh"'
+run = 'plugin custom-shell zsh' # OR 'plugin custom-shell -- zsh'
 desc = "custom-shell as default"
 ```
 
@@ -114,7 +114,7 @@ To set extra shell arguments, you can add them as:
 ```toml
 [[manager.prepend_keymap]]
 on = [ "<keybinding>" ]
-run = 'plugin custom-shell --args="zsh --interactive --block"'
+run = 'plugin custom-shell -- zsh --interactive --block'
 desc = "custom-shell as default with specified arguments"
 ```
 
@@ -123,7 +123,7 @@ To choose a specific shell(or `auto`) and `wait` for user to press return key af
 ```toml
 [[manager.prepend_keymap]]
 on = [ "<keybinding>" ]
-run = "plugin custom-shell --args='zsh --wait'"
+run = "plugin custom-shell -- zsh --wait"
 desc = "custom-shell as default, waits for user"
 ```
 
@@ -134,14 +134,14 @@ You can input any shell with their shortnames or full names like "Powershell" or
 ```toml
 [[manager.prepend_keymap]]
 on = [ "'", ";" ]
-run = 'plugin custom-shell --args="auto --interactive"'
+run = 'plugin custom-shell -- auto --interactive'
 desc = "custom-shell as default, interactive"
 ```
 
 ```toml
 [[manager.prepend_keymap]]
 on = [ "'", ":" ]
-run = 'plugin custom-shell --args="auto --interactive --block"'
+run = 'plugin custom-shell -- auto --interactive --block'
 desc = "custom-shell as default, interactive, block"
 ```
 
@@ -154,7 +154,7 @@ To run a command, you can set the keymappings as:
 ```toml
 [[manager.prepend_keymap]]
 on = [ "l", "g" ]
-run = "plugin custom-shell --args='custom auto lazygit'"
+run = "plugin custom-shell -- custom auto lazygit"
 desc = "Run lazygit"
 ```
 
@@ -163,14 +163,14 @@ You can also run the commands with extra arguments as:
 ```toml
 [[manager.prepend_keymap]]
 on = [ "'", "1" ]
-run = "plugin custom-shell --args='custom fish \"echo hi\" --orphan'"
+run = "plugin custom-shell -- custom fish 'echo hi' --orphan"
 desc = "Run echo hi"
 ```
 
 ```toml
 [[manager.prepend_keymap]]
 on = [ "'", "2" ]
-run = "plugin custom-shell --args='custom nu \"tmux\"'"
+run = "plugin custom-shell -- custom nu 'tmux'"
 desc = "Run tmux"
 ```
 
@@ -179,7 +179,7 @@ To make the shell wait for your `ls` command, you can set the keymappings as:
 ```toml
 [[manager.prepend_keymap]]
 on = [ "'", "3" ]
-run = "plugin custom-shell --args='custom zsh ls --wait'"
+run = "plugin custom-shell -- custom zsh 'ls' --wait"
 desc = "Run ls"
 ```
 
@@ -190,7 +190,7 @@ Custom-shell saves the command you have run in a history file. It uses `fzf` to 
 ```toml
 [[manager.prepend_keymap]]
 on = [ "'", "h" ]
-run = "plugin custom-shell --args=history"
+run = "plugin custom-shell history"
 desc = "Show Custom-shell history"
 ```
 
