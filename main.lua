@@ -184,7 +184,7 @@ local function entry(_, job)
 	if event == 1 then
 		local after_cmd = separator .. (wait and wait_cmd or "exit")
 		-- for history also, this will be added.
-		custom_shell_cmd = shell_val .. " " .. supp .. " " .. ya.quote(cmd .. after_cmd, true)
+		custom_shell_cmd = shell_val .. " " .. supp .. " " .. ya.quote(cmd .. after_cmd)
 
 		ya.manager_emit("shell", {
 			custom_shell_cmd,
