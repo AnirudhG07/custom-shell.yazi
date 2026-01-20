@@ -131,7 +131,7 @@ local function history_prev(history_path)
 end
 
 local function entry(_, job)
-	local shell_env = os.getenv("SHELL"):match(".*/(.*)")
+	local shell_env = os.getenv("SHELL"):match(".*[/\\]([^%.]+)")
 	local shell_value, cmd, custom_shell_cmd = "", "", ""
 
 	local history_path, save_history = state_option("history_path"), state_option("save_history")
