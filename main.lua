@@ -130,6 +130,21 @@ local function history_prev(history_path)
 	return his_cmd
 end
 
+local PERCENT_SENTINEL = "\1"
+
+--- Quote the command if needed, preserving yazi placeholders and handling
+--- Windows-specific quoting issues.
+--- @param cmd string command to quote
+local function quote_if_needed(cmd)
+	if ya.target_family() ~= "windows" then
+		return ya.quote(cmd)
+	end
+
+	local shielded = cmd:gsub("%%", PERCENT_SENTINEL)
+	local quoted = ya.quote(shielded)
+	return (quoted:gsub(PERCENT_SENTINEL, "%%"))
+end
+
 local function entry(_, job)
 	local shell_env = os.getenv("SHELL"):match(".*[/\\]([^%.]+)")
 	local shell_value, cmd, custom_shell_cmd = "", "", ""
@@ -184,7 +199,7 @@ local function entry(_, job)
 	if event == 1 then
 		local after_cmd = separator .. (wait and wait_cmd or "exit")
 		-- for history also, this will be added.
-		custom_shell_cmd = shell_val .. " " .. supp .. " " .. ya.quote(cmd .. after_cmd)
+		custom_shell_cmd = shell_val .. " " .. supp .. " " .. quote_if_needed(cmd .. after_cmd)
 
 		ya.emit("shell", {
 			custom_shell_cmd,
