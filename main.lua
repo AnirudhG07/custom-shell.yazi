@@ -131,7 +131,18 @@ local function history_prev(history_path)
 end
 
 local function entry(_, job)
-	local shell_env = os.getenv("SHELL"):match(".*/(.*)")
+	local raw_shell_env = os.getenv("SHELL")
+	local shell_env
+	if raw_shell_env then
+		shell_env = raw_shell_env:match(".*[/\\](.*)") or raw_shell_env
+	else
+		shell_env = ya.target_family() == "windows" and "pwsh" or "sh"
+		ya.notify({
+			title = "Custom-Shell",
+			content = "$SHELL is not set, falling back to " .. shell_env,
+			timeout = 5,
+		})
+	end
 	local shell_value, cmd, custom_shell_cmd = "", "", ""
 
 	local history_path, save_history = state_option("history_path"), state_option("save_history")
