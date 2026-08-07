@@ -180,13 +180,22 @@ local function entry(_, job)
 
 	local history_path, save_history = state_option("history_path"), state_option("save_history")
 
-	if job.args[1] == "auto" or job.args[1] == "history" then
+	if job.args[1] == nil or job.args[1] == "auto" or job.args[1] == "history" then
+		-- no args at all is treated the same as `auto`: just open $SHELL
 		shell_value = shell_env:lower()
 	elseif job.args[1] == "custom" then
 		shell_value = job.args[2]
 		cmd = job.args[3]
+		if not shell_value or not cmd then
+			ya.notify({
+				title = "Custom-Shell",
+				content = "'custom' needs a shell and a command, e.g. `custom bash 'ls'`",
+				timeout = 5,
+			})
+			return
+		end
 	-- when the first param is a shell name
-	elseif job.args[1] ~= "history" then
+	else
 		shell_value = job.args[1]:lower()
 	end
 

@@ -47,6 +47,12 @@ local function assert_eq(actual, expected, label)
 	end
 end
 
+local function assert_true(cond, label)
+	if not cond then
+		fail(label or "expected truthy value, got falsy")
+	end
+end
+
 local function assert_contains(haystack, needle, label)
 	haystack = tostring(haystack)
 	if not haystack:find(needle, 1, true) then
@@ -210,6 +216,16 @@ test("a normal $SHELL value (with path and no crash) selects that shell", functi
 	assert_contains(mock.emitted.cmd, "zsh -ic", "expected zsh to be selected via $SHELL")
 end)
 
+test("no args at all does not crash and behaves like 'auto'", function()
+	reset_mocks({ shell_env = "/usr/bin/zsh", input_queue = { { value = "echo hi", event = 1 } } })
+	local plugin = load_plugin()
+	local ok, err = pcall(function()
+		plugin.entry(nil, { args = {} })
+	end)
+	assert_true(ok, "expected no crash on empty args, got: " .. tostring(err))
+	assert_contains(mock.emitted.cmd, "zsh -ic", "expected empty args to behave like 'auto' ($SHELL)")
+end)
+
 -- ---------------------------------------------------------------------
 -- tests: shell selection (named / alt names / unsupported)
 -- ---------------------------------------------------------------------
@@ -239,6 +255,28 @@ test("unsupported shell name falls back to $SHELL with a notification", function
 	plugin.entry(nil, { args = { "totallynotashell" } })
 	assert_contains(table.concat(mock.notifications, "\n"), "Unsupported shell", "expected an unsupported-shell notification")
 	assert_contains(table.concat(mock.notifications, "\n"), "bash", "expected fallback to report the $SHELL-derived shell")
+end)
+
+test("'custom' with no shell/command does not crash and notifies instead", function()
+	reset_mocks({ shell_env = "/bin/bash" })
+	local plugin = load_plugin()
+	local ok, err = pcall(function()
+		plugin.entry(nil, { args = { "custom" } })
+	end)
+	assert_true(ok, "expected no crash on 'custom' with missing args, got: " .. tostring(err))
+	assert_contains(table.concat(mock.notifications, "\n"), "needs a shell and a command", "expected a helpful notification")
+	assert_eq(mock.emitted, nil, "no shell command should be emitted for malformed 'custom' args")
+end)
+
+test("'custom' with a shell but no command does not crash and notifies instead", function()
+	reset_mocks({ shell_env = "/bin/bash" })
+	local plugin = load_plugin()
+	local ok, err = pcall(function()
+		plugin.entry(nil, { args = { "custom", "bash" } })
+	end)
+	assert_true(ok, "expected no crash on 'custom' with a missing command, got: " .. tostring(err))
+	assert_contains(table.concat(mock.notifications, "\n"), "needs a shell and a command", "expected a helpful notification")
+	assert_eq(mock.emitted, nil, "no shell command should be emitted for malformed 'custom' args")
 end)
 
 -- ---------------------------------------------------------------------
