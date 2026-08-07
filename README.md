@@ -87,18 +87,20 @@ You can also add `--wait`(default `false`) to make it wait for the user to press
 
 ### Selected/Hovered Files
 
-You can reference the selected/hovered files in your command using the same placeholders as yazi's own `shell` command:
+You can reference the selected/hovered files in your command using yazi's own `shell` placeholders, resolved natively by yazi itself:
 
-| **Placeholder** | **Description**                                 |
-| ---------------- | ------------------------------------------------ |
-| `%h`             | Hovered file, empty if nothing is hovered         |
-| `%s`             | All selected files (or the hovered file, if none are selected) |
-| `%sN`            | The N-th selected file, e.g. `%s1`, `%s2`         |
-| `%d`             | Dirnames of all selected files                    |
-| `%dN`            | Dirname of the N-th selected file                 |
-| `%%`             | Escaped `%` character                             |
+| **Placeholder** | **Description**                                                 |
+| ---------------- | ---------------------------------------------------------------- |
+| `%h`             | Hovered file, empty if nothing is hovered                        |
+| `%s`             | All selected files                                                |
+| `%sN`            | The N-th selected file, e.g. `%s1`, `%s2`                         |
+| `%d`             | Dirnames of all selected files                                    |
+| `%dN`            | Dirname of the N-th selected file                                 |
+| `%%`             | Escaped `%` character                                             |
 
 For example, `nvim %h` opens the hovered file, and `echo %s` prints all selected files.
+
+For `bash`, `zsh`, `sh`, `ksh`, `dash`, `fish`, `csh`, and `tcsh`, the selected files are also automatically appended as trailing positional arguments, so a command written for `$@`/`$1`/`$2` (without `%s`) also picks up the selection. `$0` is set to the shell's name, not a file — use `%h`/`%s1` for that. `pwsh` and `nu` don't support trailing positional args, so use `%h`/`%s` explicitly on those shells.
 
 ![wait argument demo](.assets/wait_demo.gif)
 
@@ -109,7 +111,7 @@ Add this to your `keymap.toml` file:
 To use the `auto` mode, you can set the keymappings as:
 
 ```toml
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "<keybinding>" ]
 run = 'plugin custom-shell -- auto --interactive'
 desc = "custom-shell as default"
@@ -118,7 +120,7 @@ desc = "custom-shell as default"
 To choose a specific shell, you can set the keymappings as:
 
 ```toml
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "<keybinding>" ]
 run = 'plugin custom-shell zsh' # OR 'plugin custom-shell -- zsh'
 desc = "custom-shell as default"
@@ -127,7 +129,7 @@ desc = "custom-shell as default"
 To set extra shell arguments, you can add them as:
 
 ```toml
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "<keybinding>" ]
 run = 'plugin custom-shell -- zsh --interactive --block'
 desc = "custom-shell as default with specified arguments"
@@ -136,7 +138,7 @@ desc = "custom-shell as default with specified arguments"
 To choose a specific shell(or `auto`) and `wait` for user to press return key after executing the command:
 
 ```toml
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "<keybinding>" ]
 run = "plugin custom-shell -- zsh --wait"
 desc = "custom-shell as default, waits for user"
@@ -147,14 +149,14 @@ You can input any shell with their shortnames or full names like "Powershell" or
 ### Recommended Keybindings
 
 ```toml
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "'", ";" ]
 run = 'plugin custom-shell -- auto --interactive'
 desc = "custom-shell as default, interactive"
 ```
 
 ```toml
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "'", ":" ]
 run = 'plugin custom-shell -- auto --interactive --block'
 desc = "custom-shell as default, interactive, block"
@@ -167,7 +169,7 @@ Custom-shell.yazi allows you to run your custom commands without inputting them 
 To run a command, you can set the keymappings as:
 
 ```toml
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "l", "g" ]
 run = "plugin custom-shell -- custom auto lazygit"
 desc = "Run lazygit"
@@ -176,14 +178,14 @@ desc = "Run lazygit"
 You can also run the commands with extra arguments as:
 
 ```toml
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "'", "1" ]
 run = "plugin custom-shell -- custom fish 'echo hi' --orphan"
 desc = "Run echo hi"
 ```
 
 ```toml
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "'", "2" ]
 run = "plugin custom-shell -- custom nu 'tmux'"
 desc = "Run tmux"
@@ -192,7 +194,7 @@ desc = "Run tmux"
 To make the shell wait for your `ls` command, you can set the keymappings as:
 
 ```toml
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "'", "3" ]
 run = "plugin custom-shell -- custom zsh 'ls' --wait"
 desc = "Run ls"
@@ -203,7 +205,7 @@ desc = "Run ls"
 Custom-shell saves the command you have run in a history file. It uses `fzf` to show history and run the selected command. You can set the keymappings to view the history as -
 
 ```toml
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "'", "h" ]
 run = "plugin custom-shell history"
 desc = "Show Custom-shell history"

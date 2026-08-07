@@ -2,6 +2,12 @@ local state_option = ya.sync(function(state, attr)
 	return state[attr]
 end)
 
+--- How trailing args are appended after the quoted command.
+--- POSIX = shell_val + %s ($0/$@ trick), ARGV = bare %s (no $0 override),
+--- NONE = nothing appended (user must inline %s themselves).
+--- @enum ArgMode
+local ArgMode = { POSIX = "posix", ARGV = "argv", NONE = "none" }
+
 local function shell_choice(shell_val)
 	-- input is in lowercase always
 	local alt_name_map = {
@@ -11,25 +17,25 @@ local function shell_choice(shell_val)
 	}
 
 	local shell_map = {
-		bash = { shell_val = "bash", supporter = "-ic", wait_cmd = "read", separator = ";" },
-		zsh = { shell_val = "zsh", supporter = "-ic", wait_cmd = "read", separator = ";" },
-		fish = { shell_val = "fish", supporter = "-c", wait_cmd = "read", separator = ";" },
-		pwsh = { shell_val = "pwsh", supporter = "-Command", wait_cmd = "Read-Host", separator = ";" },
-		sh = { shell_val = "sh", supporter = "-c", wait_cmd = "read", separator = ";" },
-		ksh = { shell_val = "ksh", supporter = "-c", wait_cmd = "read", separator = ";" },
-		csh = { shell_val = "csh", supporter = "-c", wait_cmd = "$<", separator = ";" },
-		tcsh = { shell_val = "tcsh", supporter = "-c", wait_cmd = "$<", separator = ";" },
-		dash = { shell_val = "dash", supporter = "-c", wait_cmd = "read", separator = ";" },
-		nu = { shell_val = "nu", supporter = "-l -i -c", wait_cmd = "input", separator = "| print;" },
+		bash = { shell_val = "bash", supporter = "-ic", wait_cmd = "read", separator = ";", arg_mode = ArgMode.POSIX },
+		zsh = { shell_val = "zsh", supporter = "-ic", wait_cmd = "read", separator = ";", arg_mode = ArgMode.POSIX },
+		fish = { shell_val = "fish", supporter = "-c", wait_cmd = "read", separator = ";", arg_mode = ArgMode.ARGV },
+		pwsh = { shell_val = "pwsh", supporter = "-Command", wait_cmd = "Read-Host", separator = ";", arg_mode = ArgMode.NONE },
+		sh = { shell_val = "sh", supporter = "-c", wait_cmd = "read", separator = ";", arg_mode = ArgMode.POSIX },
+		ksh = { shell_val = "ksh", supporter = "-c", wait_cmd = "read", separator = ";", arg_mode = ArgMode.POSIX },
+		csh = { shell_val = "csh", supporter = "-c", wait_cmd = "$<", separator = ";", arg_mode = ArgMode.ARGV },
+		tcsh = { shell_val = "tcsh", supporter = "-c", wait_cmd = "$<", separator = ";", arg_mode = ArgMode.ARGV },
+		dash = { shell_val = "dash", supporter = "-c", wait_cmd = "read", separator = ";", arg_mode = ArgMode.POSIX },
+		nu = { shell_val = "nu", supporter = "-l -i -c", wait_cmd = "input", separator = "| print;", arg_mode = ArgMode.NONE },
 	}
 
 	shell_val = alt_name_map[shell_val] or shell_val
 	local shell_info = shell_map[shell_val]
 
 	if shell_info then
-		return shell_info.shell_val, shell_info.supporter, shell_info.wait_cmd, shell_info.separator
+		return shell_info.shell_val, shell_info.supporter, shell_info.wait_cmd, shell_info.separator, shell_info.arg_mode
 	else
-		return nil, "-c", "read"
+		return nil, "-c", "read", ";", ArgMode.NONE
 	end
 end
 
@@ -59,6 +65,18 @@ local function manage_additional_title_text(block, wait)
 		txt = "(" .. (block and wait and "block and wait" or block and "block" or "") .. ")"
 	end
 	return txt
+end
+
+--- Build the trailing positional-args suffix appended after the quoted command.
+--- @param arg_mode ArgMode how to append trailing args
+--- @param shell_val string|nil name of the shell binary (used as fake $0 for posix)
+local function build_args_suffix(arg_mode, shell_val)
+	if arg_mode == ArgMode.POSIX then
+		return " " .. ( shell_val or "unknown" ) .. " " .. "%s"
+	elseif arg_mode == ArgMode.ARGV then
+		return " " .. "%s"
+	end
+	return ""
 end
 
 local function history_add(history_path, cmd_run)
@@ -114,7 +132,7 @@ local function history_prev(history_path)
 	for i, cmd in ipairs(history_cmds) do
 		history_cmds[i] = cmd:gsub("'", "'\\''") -- Escape single quotes
 	end
-	local permit = ya.hide()
+	local permit = ui.hide()
 
 	local cmd = string.format('%s < "%s"', "fzf", history_path)
 	local handle = io.popen(cmd, "r")
@@ -130,67 +148,26 @@ local function history_prev(history_path)
 	return his_cmd
 end
 
-local get_files = ya.sync(function()
-	local tab, selected = cx.active, {}
-	for _, u in pairs(tab.selected) do
-		selected[#selected + 1] = tostring(u)
-	end
-	local hovered = tab.current.hovered and tostring(tab.current.hovered.url) or nil
-	return selected, hovered
-end)
+local PERCENT_SENTINEL = "\1"
 
--- expand yazi's own shell template placeholders (%h, %s, %sN, %d, %dN, %%)
--- so they resolve to the selected/hovered files, matching the "shell" command's
--- own templating: https://yazi-rs.github.io/docs/configuration/keymap
-local function expand_template(cmd)
-	if not cmd or cmd == "" or not cmd:find("%%") then
-		return cmd
+--- Quote the command if needed, preserving yazi placeholders and handling
+--- Windows-specific quoting issues.
+--- @param cmd string command to quote
+local function quote_if_needed(cmd)
+	if ya.target_family() ~= "windows" then
+		return ya.quote(cmd)
 	end
 
-	local selected, hovered = get_files()
-	if #selected == 0 and hovered then
-		selected = { hovered }
-	end
-
-	local function q(path)
-		return ya.quote(path, true)
-	end
-
-	local function dirname(path)
-		return path:match("^(.*)[/\\][^/\\]*$") or path
-	end
-
-	local selected_q, dirs_q = {}, {}
-	for i, path in ipairs(selected) do
-		selected_q[i] = q(path)
-		dirs_q[i] = q(dirname(path))
-	end
-
-	local hovered_q = hovered and q(hovered) or ""
-	local all_selected_q = table.concat(selected_q, " ")
-	local all_dirs_q = table.concat(dirs_q, " ")
-
-	-- escape literal %% first so it doesn't get mistaken for a placeholder
-	cmd = cmd:gsub("%%%%", "\1")
-	cmd = cmd:gsub("%%h", (hovered_q:gsub("%%", "%%%%")))
-	cmd = cmd:gsub("%%s(%d+)", function(n)
-		return (selected_q[tonumber(n)] or ""):gsub("%%", "%%%%")
-	end)
-	cmd = cmd:gsub("%%s", (all_selected_q:gsub("%%", "%%%%")))
-	cmd = cmd:gsub("%%d(%d+)", function(n)
-		return (dirs_q[tonumber(n)] or ""):gsub("%%", "%%%%")
-	end)
-	cmd = cmd:gsub("%%d", (all_dirs_q:gsub("%%", "%%%%")))
-	cmd = cmd:gsub("\1", "%%")
-
-	return cmd
+	local shielded = cmd:gsub("%%", PERCENT_SENTINEL)
+	local quoted = ya.quote(shielded)
+	return (quoted:gsub(PERCENT_SENTINEL, "%%"))
 end
 
 local function entry(_, job)
 	local raw_shell_env = os.getenv("SHELL")
 	local shell_env
 	if raw_shell_env then
-		shell_env = raw_shell_env:match(".*[/\\](.*)") or raw_shell_env
+		shell_env = raw_shell_env:match(".*[/\\]([^%.]+)") or raw_shell_env
 	else
 		shell_env = ya.target_family() == "windows" and "pwsh" or "sh"
 		ya.notify({
@@ -213,7 +190,7 @@ local function entry(_, job)
 		shell_value = job.args[1]:lower()
 	end
 
-	local shell_val, supp, wait_cmd, separator = shell_choice(shell_value:lower())
+	local shell_val, supp, wait_cmd, separator, arg_mode = shell_choice(shell_value:lower())
 
 	if job.args[1] == "history" then
 		local his_cmd = history_prev(history_path)
@@ -233,7 +210,7 @@ local function entry(_, job)
 	end
 	if shell_val == nil then
 		ya.notify("Unsupported shell: " .. shell_value .. "Choosing Default Shell: " .. shell_env)
-		shell_val, supp = shell_choice(shell_env)
+		shell_val, supp, wait_cmd, separator, arg_mode = shell_choice(shell_env)
 	end
 
 	local block, orphan, wait, interactive = manage_extra_args(job) --  , confirm
@@ -244,21 +221,17 @@ local function entry(_, job)
 	if job.args[1] ~= "custom" and job.args[1] ~= "history" then
 		cmd, event = ya.input({
 			title = input_title,
-			position = { "top-center", y = 3, w = 40 },
+			pos = { "top-center", y = 3, w = 40 },
 		})
 	end
 
 	if event == 1 then
 		local after_cmd = separator .. (wait and wait_cmd or "exit")
-		-- expand %h/%s/%sN/%d/%dN placeholders against the selected/hovered files,
-		-- same templating as yazi's own "shell" command
-		local expanded_cmd = expand_template(cmd)
-		custom_shell_cmd = shell_val .. " " .. supp .. " " .. ya.quote(expanded_cmd .. after_cmd, true)
-		-- keep the un-expanded command for history, so it can be reused with a
-		-- different selection later.
-		local history_shell_cmd = shell_val .. " " .. supp .. " " .. ya.quote(cmd .. after_cmd, true)
+		-- for history also, this will be added.
+		custom_shell_cmd =
+			shell_val .. " " .. supp .. " " .. quote_if_needed(cmd .. after_cmd) .. build_args_suffix(arg_mode, shell_val)
 
-		ya.manager_emit("shell", {
+		ya.emit("shell", {
 			custom_shell_cmd,
 			block = block,
 			interactive = interactive,
@@ -270,7 +243,7 @@ local function entry(_, job)
 				-- to avoid nested "zsh -c 'zsh -c ...'"
 				history_add(history_path, cmd)
 			else
-				history_add(history_path, history_shell_cmd)
+				history_add(history_path, custom_shell_cmd)
 			end
 		end
 	end
