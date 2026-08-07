@@ -85,6 +85,21 @@ Check the keybindings below to see how to set these options.
 
 You can also add `--wait`(default `false`) to make it wait for the user to press return key after executing the command. This allows the command output not to disappear immediately after exit and to stay readable on screen. Note that it is up to the command you run to decide whether to wait for user input or not, so this option may or may not be needed.
 
+### Selected/Hovered Files
+
+You can reference the selected/hovered files in your command using the same placeholders as yazi's own `shell` command:
+
+| **Placeholder** | **Description**                                 |
+| ---------------- | ------------------------------------------------ |
+| `%h`             | Hovered file, empty if nothing is hovered         |
+| `%s`             | All selected files (or the hovered file, if none are selected) |
+| `%sN`            | The N-th selected file, e.g. `%s1`, `%s2`         |
+| `%d`             | Dirnames of all selected files                    |
+| `%dN`            | Dirname of the N-th selected file                 |
+| `%%`             | Escaped `%` character                             |
+
+For example, `nvim %h` opens the hovered file, and `echo %s` prints all selected files.
+
 ![wait argument demo](.assets/wait_demo.gif)
 
 ### Keybindings for Custom Shell

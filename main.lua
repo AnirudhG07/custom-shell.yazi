@@ -130,6 +130,62 @@ local function history_prev(history_path)
 	return his_cmd
 end
 
+local get_files = ya.sync(function()
+	local tab, selected = cx.active, {}
+	for _, u in pairs(tab.selected) do
+		selected[#selected + 1] = tostring(u)
+	end
+	local hovered = tab.current.hovered and tostring(tab.current.hovered.url) or nil
+	return selected, hovered
+end)
+
+-- expand yazi's own shell template placeholders (%h, %s, %sN, %d, %dN, %%)
+-- so they resolve to the selected/hovered files, matching the "shell" command's
+-- own templating: https://yazi-rs.github.io/docs/configuration/keymap
+local function expand_template(cmd)
+	if not cmd or cmd == "" or not cmd:find("%%") then
+		return cmd
+	end
+
+	local selected, hovered = get_files()
+	if #selected == 0 and hovered then
+		selected = { hovered }
+	end
+
+	local function q(path)
+		return ya.quote(path, true)
+	end
+
+	local function dirname(path)
+		return path:match("^(.*)[/\\][^/\\]*$") or path
+	end
+
+	local selected_q, dirs_q = {}, {}
+	for i, path in ipairs(selected) do
+		selected_q[i] = q(path)
+		dirs_q[i] = q(dirname(path))
+	end
+
+	local hovered_q = hovered and q(hovered) or ""
+	local all_selected_q = table.concat(selected_q, " ")
+	local all_dirs_q = table.concat(dirs_q, " ")
+
+	-- escape literal %% first so it doesn't get mistaken for a placeholder
+	cmd = cmd:gsub("%%%%", "\1")
+	cmd = cmd:gsub("%%h", (hovered_q:gsub("%%", "%%%%")))
+	cmd = cmd:gsub("%%s(%d+)", function(n)
+		return (selected_q[tonumber(n)] or ""):gsub("%%", "%%%%")
+	end)
+	cmd = cmd:gsub("%%s", (all_selected_q:gsub("%%", "%%%%")))
+	cmd = cmd:gsub("%%d(%d+)", function(n)
+		return (dirs_q[tonumber(n)] or ""):gsub("%%", "%%%%")
+	end)
+	cmd = cmd:gsub("%%d", (all_dirs_q:gsub("%%", "%%%%")))
+	cmd = cmd:gsub("\1", "%%")
+
+	return cmd
+end
+
 local function entry(_, job)
 	local raw_shell_env = os.getenv("SHELL")
 	local shell_env
@@ -194,8 +250,13 @@ local function entry(_, job)
 
 	if event == 1 then
 		local after_cmd = separator .. (wait and wait_cmd or "exit")
-		-- for history also, this will be added.
-		custom_shell_cmd = shell_val .. " " .. supp .. " " .. ya.quote(cmd .. after_cmd, true)
+		-- expand %h/%s/%sN/%d/%dN placeholders against the selected/hovered files,
+		-- same templating as yazi's own "shell" command
+		local expanded_cmd = expand_template(cmd)
+		custom_shell_cmd = shell_val .. " " .. supp .. " " .. ya.quote(expanded_cmd .. after_cmd, true)
+		-- keep the un-expanded command for history, so it can be reused with a
+		-- different selection later.
+		local history_shell_cmd = shell_val .. " " .. supp .. " " .. ya.quote(cmd .. after_cmd, true)
 
 		ya.manager_emit("shell", {
 			custom_shell_cmd,
@@ -209,7 +270,7 @@ local function entry(_, job)
 				-- to avoid nested "zsh -c 'zsh -c ...'"
 				history_add(history_path, cmd)
 			else
-				history_add(history_path, custom_shell_cmd)
+				history_add(history_path, history_shell_cmd)
 			end
 		end
 	end
